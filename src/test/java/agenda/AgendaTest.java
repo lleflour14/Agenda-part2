@@ -4,6 +4,7 @@ import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
@@ -53,5 +54,41 @@ public class AgendaTest {
         assertTrue(agenda.eventsInDay(nov_1_2020).contains(neverEnding));
     }
 
+    @Test
+    public void testFindByTitle() {
+        // null
+        String titre = "null";
+        List<Event> listeTitre = new ArrayList<Event>();
+        assertEquals(listeTitre, agenda.findByTitle(titre), "il y a 0 evenement avec de nom");
+
+        // bcp
+        String titre2 = "evenement simple";
+        LocalDateTime nov_12__2020_10_30 = LocalDateTime.of(2020, 11, 12, 10, 30);
+        Event ev = new Event("evenement simple", nov_12__2020_10_30, min_120);
+        agenda.addEvent(ev);
+        listeTitre.add(ev);
+        assertEquals(listeTitre, agenda.findByTitle(titre2), "il y a 2 evenement avec de nom");
+    }
+
+    @Test
+    public void testIsFreeFor() {
+        LocalDateTime nov_1__2020_23_30 = LocalDateTime.of(2020, 11, 1, 23, 30);
+        LocalDateTime nov_1__2020_22_00 = LocalDateTime.of(2020, 11, 1, 22, 00);
+        Duration min_240 = Duration.ofMinutes(240);
+
+
+        Event ev = new Event("avant", nov_1__2020_23_30, min_120);
+        assertEquals(false, agenda.isFreeFor(ev), "début avant, fin pendant");
+
+        Event ev1 = new Event("début en même temps", nov_1__2020_22_30, min_120);
+        assertEquals(false, agenda.isFreeFor(ev1), "début en même temps");
+
+        Event ev2 = new Event("pendant et après", nov_1__2020_23_30, min_120);
+        assertEquals(false, agenda.isFreeFor(ev2), "début pendant, fin après");
+
+        Event ev3 = new Event("pas ensemble", nov_1__2020_22_00, min_240);
+        assertEquals(false, agenda.isFreeFor(ev3), "début après, fin après");
+
+    }
 
 }
